@@ -54,8 +54,15 @@ Packet(Header header, byte[] packet){
 		//		result += Utils.addTab(Utils.byteToHex(this.transport.getPayload()), 3);
 		//}
 		if (this.application != null){
-			if (this.application.getHttp() != null)
+			System.out.println("part 1");
+			if (this.application.getHttp() != null){
+			System.out.println("part 2");
 				result += this.application.getHttp().print();
+			}
+			if (this.application.getDhcp() != null){
+				result += this.application.getDhcp().print();
+			System.out.println("part 3");
+			}
 		}
 		return result;
 	}
@@ -112,10 +119,12 @@ Packet(Header header, byte[] packet){
 		//	System.out.println(this.header.getNumber());
 			this.application = new Application(Utils.hexToByteArray(tcpStream), this.header.getNumber());
 		}
-		else if (protoC4.equals("17"))
+		else if (protoC4.equals("17")){
 			this.application = new Application(this.transport.getPayload(), this.header.getNumber());
-		else
+		}
+		else{
 			this.application = null;
+		}
 	}
 
 	public String getAllTcpSession(){

@@ -29,8 +29,9 @@ public String recognizeProto(byte[] datagram){
 	if (isHttp(datagram)){
 		return "HTTP";
 	}
-	else if (isDhcp(datagram))
+	else if (isDhcp(datagram)){
 		return "DHCP";
+	}
 	return "NSP";
 		
 }
@@ -42,18 +43,12 @@ public Map<String, String> getDetails(){
 public boolean isHttp(byte[] datagram){
 		try{
 			String str = new String(datagram, "US-ASCII");
-		/*	System.out.println(str.substring(0,3));
-			System.out.println(str.substring(0,4));
-			System.out.println(str.substring(0,5));
-			System.out.println(str.substring(0,6));
-			System.out.println(str.substring(0,7));*/
 			return 	HTTP_METHOD.contains(str.substring(0,3)) ||
 				HTTP_METHOD.contains(str.substring(0,4)) ||
 				HTTP_METHOD.contains(str.substring(0,5)) ||
 				HTTP_METHOD.contains(str.substring(0,6)) ||
 				HTTP_METHOD.contains(str.substring(0,7));
 		} catch(Exception e){
-			//e.printStackTrace();
 			return false;
 		}
 }
@@ -68,4 +63,7 @@ public Http getHttp(){
 	return this.http;
 }
 
+public Dhcp getDhcp(){
+	return this.dhcp;
+}
 }

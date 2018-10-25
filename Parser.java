@@ -106,9 +106,10 @@ public void setPrecIpPacket(Packet newPacket){
 
 public void parsePackets(){
 	for(Packet p : this.packets){
-		if (p.getNetworkAccess().getDetails().get("Type").equals("0800"))
+		if (p.getNetworkAccess().getDetails().get("Type").equals("0800")){
 			if(!p.getInternet().isFrag() || p.getInternet().getAssembledPayload() != null){
 				p.parseTransport();
+			}
 		}
 	}
 	assemblePacket();
@@ -142,6 +143,10 @@ public void parseApplication(){
 		if (p.getTransport() != null && !p.getTransport().getDetails().get("ProtoC4").equals("1")){
 			p.parseApplication();
 		}
+		/*else{
+			if (p.getTransport() != null)
+				System.out.println("paaa");
+		}*/
 	}
 }
 

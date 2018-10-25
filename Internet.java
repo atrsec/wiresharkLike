@@ -63,7 +63,8 @@ public class Internet {
 	}
 
 	public boolean sameDatagram(Internet internet){
-		return 	this.details.get("Identification").equals(internet.getDetails().get("Identification")) &&
+		return 	!this.details.get("Identification").equals("0000") &&
+			this.details.get("Identification").equals(internet.getDetails().get("Identification")) &&
 				this.details.get("IP_source").equals(internet.getDetails().get("IP_source")) &&
 				this.details.get("IP_dest").equals(internet.getDetails().get("IP_dest"));
 	}
