@@ -2,7 +2,6 @@ import java.io.*;
 import java.util.*;
 
 public class Application {
-	private Map<String, String> details;
 	private Http http;
 	private Dhcp dhcp;
 
@@ -22,10 +21,6 @@ Application(byte[] datagram, int num) {
 	//	System.out.println(proto);
 	//this.details = new HashMap<String, String>();
 	//details.put("All", getHttp(datagram));
-}
-
-public Map<String, String> getDetails(){
-	return this.details;
 }
 
 public boolean isHttp(byte[] datagram){

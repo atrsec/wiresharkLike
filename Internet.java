@@ -9,7 +9,7 @@ public class Internet {
 	private Internet nextInternet;
 
 	Internet(String protoc3, byte[] datagram) {
-		details = new HashMap<>();
+		details = new LinkedHashMap<>();
 		details.put("ProtoC3", protoc3);
 		isFrag = false;
 		nextInternet=null;

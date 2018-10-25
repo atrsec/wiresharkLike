@@ -5,7 +5,7 @@ public class NetworkAccess {
 	private Map<String, String> details;
 
 NetworkAccess(byte[] frame){
-	details = new HashMap<>();
+	details = new LinkedHashMap<>();
 	details.put("Mac_dest", Utils.byteToMac(Arrays.copyOfRange(frame, 0, 6)));
 	details.put("Mac_source", Utils.byteToMac(Arrays.copyOfRange(frame, 6, 12)));
 	details.put("Type", Utils.byteToHex(Arrays.copyOfRange(frame, 12, 14)));

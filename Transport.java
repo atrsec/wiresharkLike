@@ -10,7 +10,7 @@ public class Transport {
 	private boolean alreadyTreat;
 
 Transport(String protoC4, byte[] datagram){
-	this.details = new HashMap<>();
+	this.details = new LinkedHashMap<>();
 	this.details.put("ProtoC4", protoC4);
 	this.alone = true;
 	this.alone = false;
