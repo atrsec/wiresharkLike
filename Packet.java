@@ -54,14 +54,11 @@ Packet(Header header, byte[] packet){
 		//		result += Utils.addTab(Utils.byteToHex(this.transport.getPayload()), 3);
 		//}
 		if (this.application != null){
-			System.out.println("part 1");
 			if (this.application.getHttp() != null){
-			System.out.println("part 2");
 				result += this.application.getHttp().print();
 			}
 			if (this.application.getDhcp() != null){
 				result += this.application.getDhcp().print();
-			System.out.println("part 3");
 			}
 		}
 		return result;

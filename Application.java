@@ -11,29 +11,17 @@ public class Application {
 
 //TODO delete num packet in constructor use for debug
 Application(byte[] datagram, int num) {
-	String proto = recognizeProto(datagram);
-	if (proto.equals("HTTP"))
+	//String proto = recognizeProto(datagram);
+	if (isHttp(datagram))
 	{
 		this.http = new Http(datagram);
-	}else if (proto.equals("DHCP")){
+	}else if (isDhcp(datagram)){
 		this.dhcp = new Dhcp(datagram);
 	}
 	//else
 	//	System.out.println(proto);
 	//this.details = new HashMap<String, String>();
 	//details.put("All", getHttp(datagram));
-}
-
-
-public String recognizeProto(byte[] datagram){
-	if (isHttp(datagram)){
-		return "HTTP";
-	}
-	else if (isDhcp(datagram)){
-		return "DHCP";
-	}
-	return "NSP";
-		
 }
 
 public Map<String, String> getDetails(){
