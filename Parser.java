@@ -117,7 +117,7 @@ public void parsePackets(){
 
 public void assemblePacket(){
 	for (Packet p : this.packets){
-		if (p.isTcpPacket() && p.getTransport().isStartOfTcp()){
+		if (p.isTcpPacket() /*&& p.getTransport().isStartOfTcp()*/){
 			findNextTcpPacket(p);
 		}
 	}
@@ -131,7 +131,8 @@ public void findNextTcpPacket(Packet packet){
 		if (p.isTcpPacket() && packet.isNextTcpPacket(p) && !p.getTransport().getAlreadyTreat()){
 		//	System.out.println(p.getHeader().getNumber());
 			packet.getTransport().setNext(p.getTransport());
-			findNextTcpPacket(p);
+			p.getTransport().setBegin(false);
+			//findNextTcpPacket(p);
 			return;
 		}
 	}

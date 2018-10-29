@@ -18,24 +18,25 @@ public class Http{
 		}
 	}
 	
-	public boolean isRequest(String method){
+	public boolean isHttp(String method){
 		return  HTTP_REQUEST.contains(method.substring(0,3)) ||
 			HTTP_REQUEST.contains(method.substring(0,4)) ||
 			HTTP_REQUEST.contains(method.substring(0,5)) ||
 			HTTP_REQUEST.contains(method.substring(0,6)) ||
-			HTTP_REQUEST.contains(method.substring(0,7));
+			HTTP_REQUEST.contains(method.substring(0,7)) ||
+			HTTP_RESPONSE.equals(method.substring(0,4));
 	}
-
+/*
 	public boolean isResponse(String datagram){
 		return HTTP_RESPONSE.equals(datagram.substring(0,4));
 	}
-
+*/
 	public void parseHTTP(String datagram){
 		int cursor = 0;
 		String newElement;
 		String restOfDatagram;
-		while (cursor <= datagram.length()){
-			restOfDatagram = datagram.substring(cursor, datagram.length());
+		while (cursor <= datagram.length() && isHttp(restOfDatagram = datagram.substring(cursor, datagram.length()))){
+			//restOfDatagram = datagram.substring(cursor, datagram.length());
 			String request = restOfDatagram.split("\r\n\r\n")[0];
 			cursor += request.length() + 4;
 			String body = getBody(request, restOfDatagram.substring(request.length() + 4, restOfDatagram.length()));

@@ -40,7 +40,7 @@ Packet(Header header, byte[] packet){
 
 	public String printPacket(){
 		String result = "";// Utils.addTab(printLayer(this.networkAccess.getDetails()), 1);
-		if (this.internet != null) {
+		/*if (this.internet != null) {
 			result += Utils.addTab(printLayer(this.internet.getDetails()), 2);
 			//result += "Is frag = " + this.internet.isFrag();
 			if (this.internet.getDetails().get("ProtoC3").equals("0800"))
@@ -52,7 +52,7 @@ Packet(Header header, byte[] packet){
 			result += Utils.addTab(printLayer(this.transport.getDetails()), 3);
 			if (this.transport.getPayload() != null)
 				result += Utils.addTab(Utils.byteToHex(this.transport.getPayload()), 3);
-		}
+		}*/
 		if (this.application != null){
 			if (this.application.getHttp() != null){
 				result += this.application.getHttp().print();
@@ -110,7 +110,7 @@ Packet(Header header, byte[] packet){
 
 	public void parseApplication(){
 		String protoC4 = this.transport.getDetails().get("ProtoC4");
-		if (protoC4.equals("6") && this.transport.isStartOfTcp()){
+		if (protoC4.equals("6") && this.transport.isBegin()){/*this.transport.isStartOfTcp()){*/
 			//new application with all the tcp conv
 			String tcpStream = getAllTcpSession();
 		//	System.out.println(this.header.getNumber());

@@ -6,14 +6,13 @@ public class Transport {
 	private byte[] payload;
 	private byte[] AssembledPayload;
 	private Transport nextTransport;
-	private boolean alone;
+	private boolean begin;
 	private boolean alreadyTreat;
 
 Transport(String protoC4, byte[] datagram){
 	this.details = new LinkedHashMap<>();
 	this.details.put("ProtoC4", protoC4);
-	this.alone = true;
-	this.alone = false;
+	this.begin = true;
 	if (protoC4.equals("1"))
 		getICMP(datagram);
 	else if (protoC4.equals("6"))
@@ -63,12 +62,12 @@ public byte[] getPayload(){
 }
 
 //TODO Delete if not use
-public boolean isAlone(){
-	return this.alone;
+public boolean isBegin(){
+	return this.begin;
 }
 
-public void setAlone(boolean b){
-	this.alone = b;
+public void setBegin(boolean b){
+	this.begin = b;
 }
 
 public boolean isStartOfTcp(){
