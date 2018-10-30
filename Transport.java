@@ -111,4 +111,12 @@ public boolean getAlreadyTreat(){
 	return this.alreadyTreat;
 }
 
+public boolean isTcp(){
+	return this.details.get("ProtoC4").equals("6");
+}
+
+public String printSrcDst(){
+	return this.details.get("Port_source") + " <=> " + this.details.get("Port_dest") + "\n";
+}
+
 }

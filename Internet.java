@@ -22,6 +22,7 @@ public class Internet {
 
 	//TODO Handle erreur of packet ARP
 	public void getArp(byte[] datagram) {
+		details.put("ProtoC3", "Arp");
 		details.put("Operation", Utils.byteToHex(Arrays.copyOfRange(datagram, 6, 8)));
 		details.put("Mac_source", Utils.byteToMac(Arrays.copyOfRange(datagram, 8, 14)));
 		details.put("IP_source", Utils.byteToIP(Arrays.copyOfRange(datagram, 14, 18)));
@@ -31,6 +32,7 @@ public class Internet {
 	}
 
 	public void getIp(byte[] datagram) {
+		details.put("ProtoC3", "IP");
 		details.put("Version", (datagram[0] >> 4) + "");
 		details.put("Length", Utils.byteToIntBE(Arrays.copyOfRange(datagram, 2, 4)) + "");
 		details.put("Identification", Utils.byteToHex(Arrays.copyOfRange(datagram, 4, 6)));
@@ -140,5 +142,10 @@ public class Internet {
 		return 	this.details.get("Identification") +
 			this.details.get("IP_source") +
 			this.details.get("IP_dest");
+	}
+
+	public String printSrcDst(){
+		return 	this.details.get("IP_source") + " <=> " +
+			this.details.get("IP_dest") + "\n";
 	}
 }

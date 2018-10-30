@@ -40,19 +40,16 @@ Packet(Header header, byte[] packet){
 
 	public String printPacket(){
 		String result = "";// Utils.addTab(printLayer(this.networkAccess.getDetails()), 1);
-		/*if (this.internet != null) {
+		if (this.internet != null) {
 			result += Utils.addTab(printLayer(this.internet.getDetails()), 2);
-			//result += "Is frag = " + this.internet.isFrag();
 			if (this.internet.getDetails().get("ProtoC3").equals("0800"))
 				result += Utils.addTab(Utils.byteToHex(this.internet.getPayload()), 2);
-	//		if (this.internet.getAssembledPayload() != null)
-	//			result += Utils.addTab(Utils.byteToHex(this.internet.getAssembledPayload()), 2);
 		}
 		if (this.transport != null){
 			result += Utils.addTab(printLayer(this.transport.getDetails()), 3);
 			if (this.transport.getPayload() != null)
 				result += Utils.addTab(Utils.byteToHex(this.transport.getPayload()), 3);
-		}*/
+		}
 		if (this.application != null){
 			if (this.application.getHttp() != null){
 				result += this.application.getHttp().print();
@@ -133,4 +130,24 @@ Packet(Header header, byte[] packet){
 		}
 		return tcpStream;
 	}
+
+public boolean isIcmp(){
+	return this.networkAccess.getDetails().get("Type").equals("0800") && this.transport.getDetails().get("ProtoC4").equals("1");
+}
+
+public boolean isTcpOrUdp(){
+	return 	this.networkAccess.getDetails().get("Type").equals("0800") && 
+		(this.transport.getDetails().get("ProtoC4").equals("6") || 
+		this.transport.getDetails().get("ProtoC4").equals("17"));
+}
+
+public String printSrcDst(){
+	String result = "";
+	result += this.networkAccess.getDetails().get("Mac_source") + " <=> " + this.networkAccess.getDetails().get("Mac_dest") + "\n";
+	if (this.networkAccess.getDetails().get("Type").equals("0800"))
+		result += this.internet.printSrcDst();
+	else if (isTcpOrUdp())
+		result += this.transport.printSrcDst();
+	return result;
+}
 }

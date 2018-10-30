@@ -41,4 +41,28 @@ public String printPackets(ArrayList<Packet> packets){
 	}
 	return result;
 }
+
+public String printByProto(ArrayList<Packet> packets, String filter){
+	String result = "";
+	for(Packet p : packets){
+		if (p.getTransport() != null && p.getTransport().isTcp() && !p.getTransport().isBegin())
+			continue;
+		result += "\t" + printLastProto(p) + "\n";
+		result += p.printSrcDst() + "\n\n";
+	}
+	return result;
+}
+
+public String printLastProto(Packet p){
+	if(p.getApplication() != null)
+		return p.getApplication().getProto();
+	else if(p.getTransport() != null)
+		return p.getTransport().getDetails().get("ProtoC4");
+	else if(p.getInternet() != null)
+		return p.getInternet().getDetails().get("ProtoC3");
+	else if(p.getNetworkAccess() != null)
+		return "Ethernet";
+	else
+		return "Error protocole";
+}
 }

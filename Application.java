@@ -49,4 +49,14 @@ public Http getHttp(){
 public Dhcp getDhcp(){
 	return this.dhcp;
 }
+
+public String getProto(){
+	if (this.http != null)
+		return "HTTP";
+	else if (this.dhcp != null)
+		return "DHCP";
+	else
+		return "NSP";
+}
+
 }

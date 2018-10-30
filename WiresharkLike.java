@@ -15,6 +15,7 @@ public static void main (String[] args){
 		parser.parseApplication();
 		
 //		System.out.println(printer.printGlobalHeader(parser.getGlobalHeader()));
-		System.out.println(printer.printPackets(parser.getPackets()));
+//		System.out.println(printer.printPackets(parser.getPackets()));
+		System.out.println(printer.printByProto(parser.getPackets(), "TODO"));
 }
 }
