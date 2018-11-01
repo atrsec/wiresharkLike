@@ -33,16 +33,16 @@ Packet(Header header, byte[] packet){
 
 	public void parseTransport(){
 		if (!this.internet.isFrag())
-			this.transport = new Transport(this.internet.getDetails().get("ProtoC4"), this.internet.getPayload());
+			this.transport = new Transport(this.internet.getDetails().get("ProtoC4"), this.internet.getPayload(), this.header.getNumber());
 		else
-			this.transport = new Transport(this.internet.getDetails().get("ProtoC4"), this.internet.getAssembledPayload());
+			this.transport = new Transport(this.internet.getDetails().get("ProtoC4"), this.internet.getAssembledPayload(), this.header.getNumber());
 	}
 
-	public String printPacket(){
+/*	public String printPacket(){
 		String result = "";// Utils.addTab(printLayer(this.networkAccess.getDetails()), 1);
 		if (this.internet != null) {
 			result += Utils.addTab(printLayer(this.internet.getDetails()), 2);
-			if (this.internet.getDetails().get("ProtoC3").equals("0800"))
+			if (this.internet.getDetails().get("ProtoC3").equals("IPV4"))
 				result += Utils.addTab(Utils.byteToHex(this.internet.getPayload()), 2);
 		}
 		if (this.transport != null){
@@ -59,7 +59,7 @@ Packet(Header header, byte[] packet){
 			}
 		}
 		return result;
-	}
+	}*/
 
 	public String printLayer(Map<String, String> map){
 			String result = "";
@@ -87,7 +87,7 @@ Packet(Header header, byte[] packet){
 	
 	public boolean isTcpPacket(){
 		return 	this.transport != null &&
-			this.transport.getDetails().get("ProtoC4").equals("6");
+			this.transport.getDetails().get("ProtoC4").equals("TCP");
 	}
 
 	
@@ -107,13 +107,13 @@ Packet(Header header, byte[] packet){
 
 	public void parseApplication(){
 		String protoC4 = this.transport.getDetails().get("ProtoC4");
-		if (protoC4.equals("6") && this.transport.isBegin()){/*this.transport.isStartOfTcp()){*/
+		if (protoC4.equals("TCP") && this.transport.isBegin()){/*this.transport.isStartOfTcp()){*/
 			//new application with all the tcp conv
 			String tcpStream = getAllTcpSession();
 		//	System.out.println(this.header.getNumber());
 			this.application = new Application(Utils.hexToByteArray(tcpStream), this.header.getNumber());
 		}
-		else if (protoC4.equals("17")){
+		else if (protoC4.equals("UDP")){
 			this.application = new Application(this.transport.getPayload(), this.header.getNumber());
 		}
 		else{
@@ -130,24 +130,66 @@ Packet(Header header, byte[] packet){
 		}
 		return tcpStream;
 	}
-
+/*
 public boolean isIcmp(){
-	return this.networkAccess.getDetails().get("Type").equals("0800") && this.transport.getDetails().get("ProtoC4").equals("1");
+	return this.networkAccess.getDetails().get("Type").equals("IPV4") && this.transport.getDetails().get("ProtoC4").equals("ICMP");
 }
 
 public boolean isTcpOrUdp(){
-	return 	this.networkAccess.getDetails().get("Type").equals("0800") && 
-		(this.transport.getDetails().get("ProtoC4").equals("6") || 
-		this.transport.getDetails().get("ProtoC4").equals("17"));
+	return 	this.networkAccess.getDetails().get("Type").equals("IPV4") && 
+		(this.transport.getDetails().get("ProtoC4").equals("TCP") || 
+		this.transport.getDetails().get("ProtoC4").equals("UDP"));
+}
+*/
+
+public String detailPrint(){
+	return null;
 }
 
-public String printSrcDst(){
-	String result = "";
-	result += this.networkAccess.getDetails().get("Mac_source") + " <=> " + this.networkAccess.getDetails().get("Mac_dest") + "\n";
-	if (this.networkAccess.getDetails().get("Type").equals("0800"))
-		result += this.internet.printSrcDst();
-	else if (isTcpOrUdp())
-		result += this.transport.printSrcDst();
-	return result;
+public Printable lastLayer(){
+	if(this.application != null)
+		return this.application;
+	else if(this.transport != null)
+		return this.transport;
+	else if(this.internet != null)
+		return this.internet;
+	else if(this.networkAccess != null)
+		return this.networkAccess;
+	else
+		return null;
 }
+
+public Connexion lastConnexionLayer(){
+	if (this.internet != null)
+		return this.internet;
+	return this.networkAccess;
+}
+
+public String tinyPrint(int lineLength, int lnum, int ltime, int lcon, int lproto, int linfo){
+	String res = String.format("|%-" + lnum + "." + lnum + "s|", this.header.getNumber());
+	res += String.format("%-" + ltime + "." + (ltime - 1) + "s|", (this.header.getTimestamp() - Parser.START_CAPTURE));
+	Connexion c = lastConnexionLayer();
+	res += String.format("%-" + lcon + "s|", c.getSource());
+	res += String.format("%-" + lcon + "s|", c.getDest());
+	Printable p = lastLayer();
+	res += String.format("%-" + lproto + "s|", p.getProtocol());
+	String info = p.tinyPrint();
+	if (info !=  null && info.length() > linfo)
+		res += String.format("%-" + (linfo - 3) + "." + (linfo - 3) + "s...|", p.tinyPrint());
+	else
+		res += String.format("%-" + linfo + "." + linfo + "s|", p.tinyPrint());
+	return res;
+}
+
+public void printConversation(){
+	if (this.transport != null && this.transport.isBegin()){
+		Transport tmp = this.transport;
+		while(tmp != null){
+			System.out.println(tmp.numPacket);
+			tmp = tmp.getNext();
+		}
+		System.out.println("\n\n");
+	}
+}
+
 }

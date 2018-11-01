@@ -1,12 +1,17 @@
 import java.util.*;
 
-public class Internet {
+public class Internet implements Printable, Connexion{
 
 	private Map<String, String> details;
 	private byte[] payload;
 	private byte[] assembledPayload;
 	private boolean isFrag;
 	private Internet nextInternet;
+	private final Map<String, String> protoC4 = Collections.unmodifiableMap(new TreeMap<String, String>() {{
+       		put("1", "ICMP");
+        	put("6", "TCP");
+        	put("17", "UDP");
+    	}});
 
 	Internet(String protoc3, byte[] datagram) {
 		details = new LinkedHashMap<>();
@@ -14,15 +19,14 @@ public class Internet {
 		isFrag = false;
 		nextInternet=null;
 		this.isFrag = false;
-		if (protoc3.equals("0800"))
+		if (protoc3.equals("IPV4"))
 			getIp(datagram);
-		else if (protoc3.equals("0806"))
+		else if (protoc3.equals("ARP"))
 			getArp(datagram);
 	}
 
 	//TODO Handle erreur of packet ARP
 	public void getArp(byte[] datagram) {
-		details.put("ProtoC3", "Arp");
 		details.put("Operation", Utils.byteToHex(Arrays.copyOfRange(datagram, 6, 8)));
 		details.put("Mac_source", Utils.byteToMac(Arrays.copyOfRange(datagram, 8, 14)));
 		details.put("IP_source", Utils.byteToIP(Arrays.copyOfRange(datagram, 14, 18)));
@@ -32,7 +36,6 @@ public class Internet {
 	}
 
 	public void getIp(byte[] datagram) {
-		details.put("ProtoC3", "IP");
 		details.put("Version", (datagram[0] >> 4) + "");
 		details.put("Length", Utils.byteToIntBE(Arrays.copyOfRange(datagram, 2, 4)) + "");
 		details.put("Identification", Utils.byteToHex(Arrays.copyOfRange(datagram, 4, 6)));
@@ -40,7 +43,7 @@ public class Internet {
 		details.put("More_fragment", ((datagram[6] & 0x20) >> 5) + "");
 		details.put("Offset", getOffset(Arrays.copyOfRange(datagram, 6, 8)) + "");
 		details.put("TTL", Utils.byteToIntBE(Arrays.copyOfRange(datagram, 8, 9)) + "");
-		details.put("ProtoC4", Utils.byteToIntBE(Arrays.copyOfRange(datagram, 9, 10)) + "");
+		details.put("ProtoC4", protoC4.get(Utils.byteToIntBE(Arrays.copyOfRange(datagram, 9, 10)) + ""));
 		details.put("IP_source", Utils.byteToIP(Arrays.copyOfRange(datagram, 12, 16)));
 		details.put("IP_dest", Utils.byteToIP(Arrays.copyOfRange(datagram, 16, 20)));
 		this.payload = Arrays.copyOfRange(datagram, 20, datagram.length);
@@ -144,8 +147,31 @@ public class Internet {
 			this.details.get("IP_dest");
 	}
 
-	public String printSrcDst(){
-		return 	this.details.get("IP_source") + " <=> " +
-			this.details.get("IP_dest") + "\n";
+	public String tinyPrint(){
+		String res = "";
+		if (this.details.get("ProtoC3").equals("ARP")){
+			if(this.details.get("Operation").equals("0001")){
+				res += "Who has " + this.details.get("IP_dest") + " ?" +
+					" Tell " + this.details.get("IP_source");
+			}else{
+				res += "Its " + this.details.get("IP_source") +
+					" at " + this.details.get("Mac_source");
+			}
+		}
+		return res;
+	}
+	
+	public String detailPrint(){
+		return null;
+	}
+	public String getSource(){
+		return details.get("IP_source");
+	}
+	public String getDest(){
+		return details.get("IP_dest");
+	}
+	
+	public String getProtocol(){
+		return this.details.get("ProtoC3");
 	}
 }

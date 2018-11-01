@@ -1,23 +1,25 @@
 import java.io.*;
 import java.util.*;
 
-public class Transport {
+public class Transport implements Printable{
 	private Map<String, String> details;
 	private byte[] payload;
 	private byte[] AssembledPayload;
 	private Transport nextTransport;
 	private boolean begin;
 	private boolean alreadyTreat;
-
-Transport(String protoC4, byte[] datagram){
+	//TODO delete
+	public int numPacket;
+Transport(String protoC4, byte[] datagram, int num){
+	this.numPacket = num;
 	this.details = new LinkedHashMap<>();
 	this.details.put("ProtoC4", protoC4);
 	this.begin = true;
-	if (protoC4.equals("1"))
+	if (protoC4.equals("ICMP"))
 		getICMP(datagram);
-	else if (protoC4.equals("6"))
+	else if (protoC4.equals("TCP"))
 		getTCP(datagram);
-	else if (protoC4.equals("17"))
+	else if (protoC4.equals("UDP"))
 		getUDP(datagram);
 }
 
@@ -71,7 +73,7 @@ public void setBegin(boolean b){
 }
 
 public boolean isStartOfTcp(){
-	return 	this.details.get("ProtoC4").equals("6") &&
+	return 	this.details.get("ProtoC4").equals("TCP") &&
 		this.details.get("FLAG_SYN").equals("1") &&
 		this.details.get("FLAG_FIN").equals("0") &&
 		this.details.get("FLAG_PSH").equals("0") &&
@@ -112,11 +114,19 @@ public boolean getAlreadyTreat(){
 }
 
 public boolean isTcp(){
-	return this.details.get("ProtoC4").equals("6");
+	return this.details.get("ProtoC4").equals("TCP");
 }
 
 public String printSrcDst(){
 	return this.details.get("Port_source") + " <=> " + this.details.get("Port_dest") + "\n";
 }
-
+public String tinyPrint(){
+	return null;
+}
+public String detailPrint(){
+	return null;
+}
+public String getProtocol(){
+	return this.details.get("ProtoC4");
+}
 }

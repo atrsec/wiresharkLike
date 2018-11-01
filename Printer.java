@@ -1,5 +1,6 @@
 import java.util.*;
 import java.io.*;
+import java.lang.*;
 
 public class Printer{
 
@@ -18,51 +19,50 @@ public String printGlobalHeader(byte[][] globalHeader){
 }
 
 public String printPackets(ArrayList<Packet> packets){
-	String result = "";
+	int lineLength = 125;
+	int lnum = 5;
+	int ltime = 10;
+	int lcon = 19;
+	int lproto = 5;
+	int linfo = 60;
+	String result = firstLine(lineLength, lnum, ltime, lcon, lproto, linfo);
 	for(Packet p : packets){
-		result += "----------------------------------------------------------------\n";
-//		result += p.getHeader().printHeader();
-		result += p.getHeader().getNumber() + "\n";
-		result += p.printPacket();
-		/*if (p.getInternet().getNextInternet() != null) {
-			result += p.getInternet().getNextInternet().getDetails().get("Identification") + "\n";
-			result += p.getInternet().getNextInternet().getDetails().get("Length") + "\n";
-		}*/
-	/*	if (p.getApplication() != null && p.getApplication().getHttp() != null){
-		Http h = p.getApplication().getHttp();
-		int i = 1;
-		for (String s : h.getRequests()){
-			result += i + ": ";
-			result += h.contentLength(s) + "\n";
-			i++;
-		}
-		}*/
-		result += "----------------------------------------------------------------\n";
+		//if (p.getInternet() != null)
+		//	System.out.println(p.getInternet().getDetails().get("ProtoC4"));
+		result += p.tinyPrint(lineLength, lnum, ltime, lcon, lproto, linfo);
+		result += "\n";
+		for (int i = 0; i < lineLength; i++)
+			result += "-";
+		result += "\n";
 	}
 	return result;
+}
+
+public String firstLine(int lineLength, int lnum, int ltime, int lcon, int lproto, int linfo){
+	String result = "";
+	for (int i = 0; i < lineLength; i++)
+		result += "-";
+	result += "\n";
+	result += String.format("|%-" + lnum + "." + lnum + "s|", "N°");
+	result += String.format("%-" + ltime + "." + (ltime - 1) + "s|", "TimeStamp");
+	result += String.format("%-" + lcon + "s|", "Source");
+	result += String.format("%-" + lcon + "s|", "Destination");
+	result += String.format("%-" + lproto + "s|", "Proto");
+	result += String.format("%-" + linfo + "s|", "Information");
+	result += "\n";
+	for (int i = 0; i < lineLength; i++)
+		result += "-";
+	result += "\n";
+	return result;
+	
 }
 
 public String printByProto(ArrayList<Packet> packets, String filter){
 	String result = "";
 	for(Packet p : packets){
-		if (p.getTransport() != null && p.getTransport().isTcp() && !p.getTransport().isBegin())
-			continue;
-		result += "\t" + printLastProto(p) + "\n";
-		result += p.printSrcDst() + "\n\n";
+		//result += p.printSrcDst() + "\n\n";
 	}
 	return result;
 }
 
-public String printLastProto(Packet p){
-	if(p.getApplication() != null)
-		return p.getApplication().getProto();
-	else if(p.getTransport() != null)
-		return p.getTransport().getDetails().get("ProtoC4");
-	else if(p.getInternet() != null)
-		return p.getInternet().getDetails().get("ProtoC3");
-	else if(p.getNetworkAccess() != null)
-		return "Ethernet";
-	else
-		return "Error protocole";
-}
 }

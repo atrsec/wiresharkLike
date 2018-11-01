@@ -1,8 +1,8 @@
 import java.util.*;
 import java.math.BigInteger;
 
-public class Http{
-	private ArrayList<String[]> requests;
+public class Http {
+	private ArrayList<String> requests;
 	private final Set<String> HTTP_REQUEST = new HashSet<String>(Arrays.asList("GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"));
 	private final String HTTP_RESPONSE = "HTTP";
 
@@ -42,10 +42,7 @@ public class Http{
 			String body = getBody(request, restOfDatagram.substring(request.length() + 4, restOfDatagram.length()));
 			if (body != null)
 				cursor += body.length();
-			String[] dial = new String[2];
-			dial[0] = request;
-			dial[1] = body;
-			this.requests.add(dial);
+			this.requests.add(request + body);
 		}
 	}
 
@@ -73,18 +70,14 @@ public class Http{
 		return datagram.contains("Transfer-Encoding: chunked");
 	}
 
-	public String print(){
+	public String tinyPrint(){
 		String http = "";
-		for (String[] elt : this.requests){
-				http += elt[0].split("\n")[0] + "\n";
-				if (elt[1] != null){
-					http += "body Present\n";
-				}
+		for (String elt : this.requests){
+				http += elt.split("\n")[0] + "\n";
 		}
 		return http;
 	}
-
-	public ArrayList<String[]> getRequests(){
-		return requests;
+	public String detailPrint(){
+		return null;
 	}
 }

@@ -9,6 +9,7 @@ private byte[] pcap;
 private Boolean littleEndian;
 private byte[][] globalHeader;
 private ArrayList<Packet> packets;
+public static double START_CAPTURE;
 
 Parser(String filepath){
 	try{
@@ -45,7 +46,12 @@ public int parseGlobalHeader(){
 	this.globalHeader = globalHeaderParsed;
 	return 0;
 } 
-
+public void parse(){
+	parseDatagrams();
+	parsePackets();
+	parseApplication();
+	START_CAPTURE = this.packets.get(0).getHeader().getTimestamp();
+}
 public int parseDatagrams(){
 
 	int res = parseGlobalHeader();
@@ -74,7 +80,7 @@ public void parseIp(Header header, byte[] packet){
 	Packet newPacket = new Packet(header, packet);
 	newPacket.parseInternet();
 
-	if (newPacket.getInternet().getDetails().get("ProtoC3").equals("0800") && newPacket.getInternet().getDetails().get("Dont_fragment").equals("0")){
+	if (newPacket.getInternet().getDetails().get("ProtoC3").equals("IPV4") && newPacket.getInternet().getDetails().get("Dont_fragment").equals("0")){
 		setPrecIpPacket(newPacket);
 	}
 	this.packets.add(newPacket);
@@ -106,7 +112,7 @@ public void setPrecIpPacket(Packet newPacket){
 
 public void parsePackets(){
 	for(Packet p : this.packets){
-		if (p.getNetworkAccess().getDetails().get("Type").equals("0800")){
+		if (p.getNetworkAccess().getDetails().get("Type").equals("IPV4")){
 			if(!p.getInternet().isFrag() || p.getInternet().getAssembledPayload() != null){
 				p.parseTransport();
 			}
@@ -141,7 +147,7 @@ public void findNextTcpPacket(Packet packet){
 
 public void parseApplication(){
 	for (Packet p : this.packets){
-		if (p.getTransport() != null && !p.getTransport().getDetails().get("ProtoC4").equals("1")){
+		if (p.getTransport() != null && !p.getTransport().getDetails().get("ProtoC4").equals("ICMP")){
 			p.parseApplication();
 		}
 		/*else{

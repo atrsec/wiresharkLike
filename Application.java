@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public class Application {
+public class Application implements Printable{
 	private Http http;
 	private Dhcp dhcp;
 
@@ -50,7 +50,7 @@ public Dhcp getDhcp(){
 	return this.dhcp;
 }
 
-public String getProto(){
+public String getProtocol(){
 	if (this.http != null)
 		return "HTTP";
 	else if (this.dhcp != null)
@@ -58,5 +58,12 @@ public String getProto(){
 	else
 		return "NSP";
 }
-
+public String tinyPrint(){
+	if (this.http != null)
+		return this.http.tinyPrint();
+	return null;
+}
+public String detailPrint(){
+	return null;
+}
 }

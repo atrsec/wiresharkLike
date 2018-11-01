@@ -43,4 +43,10 @@ public String printHeader(){
 public int getNumber(){
 	return this.number;
 }
+
+public double getTimestamp(){
+	double sec = Utils.byteToIntLE(this.ts_sec);
+	double usec = Utils.byteToIntLE(this.ts_usec);
+	return sec + usec / 1000000;
+}
 }
