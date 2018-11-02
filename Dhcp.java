@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Dhcp{
+public class Dhcp implements AppProtocol{
 
 	//TODO LinkedHashMap
 	private Map<String, String> details;
@@ -40,13 +40,25 @@ private void parseOptions(byte[] datagram){
 	this.options.put(code + "", "0");
 }
 
-public String print(){
+public String detailPrint(){
 	String result = "";
 	for (Map.Entry<String, String> detail : this.details.entrySet())
 		result += detail.getKey() + " = " + detail.getValue() + "\n";
 	for (Map.Entry<String, String> option : this.options.entrySet())
 		result += option.getKey() + " = " + option.getValue() + "\n";
 	return result;
+}
+
+public String tinyPrint(){
+	return "DHCP";
+}
+
+public String getProtocol(){
+	return "DHCP";
+}
+
+public ArrayList<String> getRequests(){
+	return null;
 }
 }
 

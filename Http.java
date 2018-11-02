@@ -1,7 +1,7 @@
 import java.util.*;
 import java.math.BigInteger;
 
-public class Http {
+public class Http implements AppProtocol{
 	private ArrayList<String> requests;
 	private final Set<String> HTTP_REQUEST = new HashSet<String>(Arrays.asList("GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"));
 	private final String HTTP_RESPONSE = "HTTP";
@@ -37,20 +37,24 @@ public class Http {
 		String restOfDatagram;
 		while (cursor <= datagram.length() && isHttp(restOfDatagram = datagram.substring(cursor, datagram.length()))){
 			//restOfDatagram = datagram.substring(cursor, datagram.length());
-			String request = restOfDatagram.split("\r\n\r\n")[0];
-			cursor += request.length() + 4;
-			String body = getBody(request, restOfDatagram.substring(request.length() + 4, restOfDatagram.length()));
-			if (body != null)
+			String request = restOfDatagram.split("\r\n\r\n")[0] + "\r\n\r\n";
+			cursor += request.length();
+			String body = getBody(request, restOfDatagram.substring(request.length(), restOfDatagram.length()));
+			if (body != null){
 				cursor += body.length();
-			this.requests.add(request + body);
+				this.requests.add(request + body);
+			}else
+				this.requests.add(request);
 		}
 	}
 
 	public String getBody(String request, String rest){
 		int bodyLength = 0;
-		if (request.contains("Content-Length"))
+		if (request.toLowerCase().contains("content-length")){
 			bodyLength = getContentLength(request);
-		else if(!request.contains("Content-Length") && isTransferEncoding(request))
+			//System.out.println("Content-Length = " + bodyLength);
+		}
+		else if(!request.toLowerCase().contains("content-length") && isTransferEncoding(request))
 			bodyLength = rest.indexOf("0\r\n\r\n") + 5;
 		if (bodyLength == 0)
 			return null;
@@ -58,7 +62,7 @@ public class Http {
 	}
 
 	int getContentLength(String datagram){
-		int indexContent = datagram.indexOf("Content-Length");
+		int indexContent = datagram.toLowerCase().indexOf("content-length");
 		int indexClrf = datagram.indexOf("\r\n", indexContent);
 		if (indexClrf == -1)
 			indexClrf = datagram.length();
@@ -67,7 +71,7 @@ public class Http {
 	}
 
 	public boolean isTransferEncoding(String datagram){
-		return datagram.contains("Transfer-Encoding: chunked");
+		return datagram.toLowerCase().contains("transfer-encoding: chunked");
 	}
 
 	public String tinyPrint(){
@@ -79,5 +83,13 @@ public class Http {
 	}
 	public String detailPrint(){
 		return null;
+	}
+	
+	public String getProtocol(){
+		return "HTTP";
+	}
+	
+	public ArrayList<String> getRequests(){
+		return this.requests;
 	}
 }

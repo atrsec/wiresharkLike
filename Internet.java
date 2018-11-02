@@ -157,8 +157,12 @@ public class Internet implements Printable, Connexion{
 				res += "Its " + this.details.get("IP_source") +
 					" at " + this.details.get("Mac_source");
 			}
+			return res;
 		}
-		return res;
+		if (this.isFrag())
+			return "Fragmented packet";
+		else
+			return this.details.get("ProtoC4") + "not known";
 	}
 	
 	public String detailPrint(){

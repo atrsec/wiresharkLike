@@ -7,7 +7,7 @@ public class Packet {
 	private NetworkAccess networkAccess;
 	private Internet internet;
 	private Transport transport;
-	private Application application;
+//	private Application application;
 
 	private final int NETWORKACCESS_LENGTH = 14;
 	private final int IP_LENGTH = 20;
@@ -80,11 +80,11 @@ Packet(Header header, byte[] packet){
 	public Transport getTransport() {
 		return transport;
 	}
-
+/*
 	public Application getApplication() {
 		return application;
 	}
-	
+*/	
 	public boolean isTcpPacket(){
 		return 	this.transport != null &&
 			this.transport.getDetails().get("ProtoC4").equals("TCP");
@@ -105,31 +105,54 @@ Packet(Header header, byte[] packet){
 			this.transport.getNextSequenceNumber() == Long.parseLong(packet.getTransport().getDetails().get("Num_ack")));
 	}
 
-	public void parseApplication(){
-		String protoC4 = this.transport.getDetails().get("ProtoC4");
-		if (protoC4.equals("TCP") && this.transport.isBegin()){/*this.transport.isStartOfTcp()){*/
-			//new application with all the tcp conv
-			String tcpStream = getAllTcpSession();
-		//	System.out.println(this.header.getNumber());
-			this.application = new Application(Utils.hexToByteArray(tcpStream), this.header.getNumber());
-		}
-		else if (protoC4.equals("UDP")){
-			this.application = new Application(this.transport.getPayload(), this.header.getNumber());
-		}
-		else{
-			this.application = null;
-		}
+public void parseApplication(){
+	String protoC4 = this.transport.getDetails().get("ProtoC4");
+	if (protoC4.equals("TCP") && this.transport.isBegin()){
+		String tcpStream = getAllTcpSession();
+		AppProtocol appProto = Application.buildProtocol(Utils.hexToByteArray(tcpStream)); 
+		if (appProto != null)
+			applicationLayerForTcp(this.transport, appProto);
+		else
+			this.transport.setApplication(new Application(null, false, null));
 	}
+	else if (protoC4.equals("UDP")){
+		AppProtocol appProto = Application.buildProtocol(this.transport.getPayload()); 
+		if (appProto != null)
+			this.transport.setApplication(new Application(appProto, false, null));
+		else
+			this.transport.setApplication(new Application(null, false, null));
+	}
+}
 
-	public String getAllTcpSession(){
-		Transport transport = this.transport;
-		String tcpStream = "";
-		while(transport != null){
-			tcpStream += Utils.byteToHex(transport.getPayload());
-			transport = transport.getNext();
-		}
-		return tcpStream;
+public String getAllTcpSession(){
+	Transport transport = this.transport;
+	String tcpStream = "";
+	while(transport != null){
+		tcpStream += Utils.byteToHex(transport.getPayload());
+		transport = transport.getNext();
 	}
+	return tcpStream;
+}
+
+public void applicationLayerForTcp(Transport transport, AppProtocol appProto){
+	Transport tmp = transport;
+	int offset = 0;
+	for (String request : appProto.getRequests()){
+		//System.out.println("Request = " + request.length());
+		offset = tmp.getPayload().length;
+		while(offset < request.length()){
+			//System.out.println("Offset = " + offset);
+			tmp.setApplication(new Application(appProto, true, null));
+			tmp = tmp.getNext();
+			offset += tmp.getPayload().length;
+		}
+		tmp.setApplication(new Application(appProto, true, request));
+		tmp = tmp.getNext();
+		offset = 0;
+
+	}
+}
+
 /*
 public boolean isIcmp(){
 	return this.networkAccess.getDetails().get("Type").equals("IPV4") && this.transport.getDetails().get("ProtoC4").equals("ICMP");
@@ -147,10 +170,14 @@ public String detailPrint(){
 }
 
 public Printable lastLayer(){
-	if(this.application != null)
+	/*if(this.application != null)
 		return this.application;
-	else if(this.transport != null)
+	else*/ 
+	if(this.transport != null){
+		/*if (this.transport.getApplication() != null)
+			return this.transport.getApplication();*/
 		return this.transport;
+	}
 	else if(this.internet != null)
 		return this.internet;
 	else if(this.networkAccess != null)
@@ -175,12 +202,12 @@ public String tinyPrint(int lineLength, int lnum, int ltime, int lcon, int lprot
 	res += String.format("%-" + lproto + "s|", p.getProtocol());
 	String info = p.tinyPrint();
 	if (info !=  null && info.length() > linfo)
-		res += String.format("%-" + (linfo - 3) + "." + (linfo - 3) + "s...|", p.tinyPrint());
+		res += String.format("%-" + (linfo - 3) + "." + (linfo - 3) + "s...|", info);
 	else
-		res += String.format("%-" + linfo + "." + linfo + "s|", p.tinyPrint());
+		res += String.format("%-" + linfo + "." + linfo + "s|", info);
 	return res;
 }
-
+/*DEBUG
 public void printConversation(){
 	if (this.transport != null && this.transport.isBegin()){
 		Transport tmp = this.transport;
@@ -190,6 +217,6 @@ public void printConversation(){
 		}
 		System.out.println("\n\n");
 	}
-}
+}*/
 
 }

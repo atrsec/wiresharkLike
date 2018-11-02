@@ -2,28 +2,33 @@ import java.io.*;
 import java.util.*;
 
 public class Application implements Printable{
-	private Http http;
-	private Dhcp dhcp;
+	/*private Http http;
+	private Dhcp dhcp;*/
+	private boolean isPartial;
+	private String reassembledPacket;
+	private AppProtocol appProtocol;
 
 	/*Get, Head, post, put, delete, connect, options, trace, patch*/
-	private final Set<String> HTTP_METHOD = new HashSet<String>(Arrays.asList("GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HTTP"));
+	private static final Set<String> HTTP_METHOD = new HashSet<String>(Arrays.asList("GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HTTP"));
 
 //TODO delete num packet in constructor use for debug
-Application(byte[] datagram, int num) {
-	//String proto = recognizeProto(datagram);
-	if (isHttp(datagram))
-	{
-		this.http = new Http(datagram);
-	}else if (isDhcp(datagram)){
-		this.dhcp = new Dhcp(datagram);
-	}
-	//else
-	//	System.out.println(proto);
-	//this.details = new HashMap<String, String>();
-	//details.put("All", getHttp(datagram));
+Application(AppProtocol appProto, boolean isPartial, String reassembledPacket) {
+	this.isPartial = isPartial;
+	this.reassembledPacket = reassembledPacket;
+	this.appProtocol = appProto;
 }
 
-public boolean isHttp(byte[] datagram){
+public static AppProtocol buildProtocol(byte[] datagram){
+	if (isHttp(datagram))
+	{
+		return new Http(datagram);
+	}else if (isDhcp(datagram)){
+		return new Dhcp(datagram);
+	}else
+		return null;
+}
+
+public static boolean isHttp(byte[] datagram){
 		try{
 			String str = new String(datagram, "US-ASCII");
 			return 	HTTP_METHOD.contains(str.substring(0,3)) ||
@@ -36,34 +41,32 @@ public boolean isHttp(byte[] datagram){
 		}
 }
 
-public boolean isDhcp(byte[] datagram){
+public static boolean isDhcp(byte[] datagram){
 	if (datagram.length > 240)
 		return Utils.byteToHex(Arrays.copyOfRange(datagram, 236, 240)).equals("63825363");
 	return false;
 }
 
-public Http getHttp(){
-	return this.http;
-}
-
-public Dhcp getDhcp(){
-	return this.dhcp;
-}
-
 public String getProtocol(){
-	if (this.http != null)
-		return "HTTP";
-	else if (this.dhcp != null)
-		return "DHCP";
-	else
-		return "NSP";
+	if (this.appProtocol == null)
+		return "????";
+	return this.appProtocol.getProtocol();
 }
+
 public String tinyPrint(){
-	if (this.http != null)
-		return this.http.tinyPrint();
-	return null;
+	if (isPartial)
+		return this.reassembledPacket.split("\r\n")[0];//.replace("\n", " ");
+	if (this.appProtocol != null)
+		return this.appProtocol.tinyPrint();
+	return "Unknown protocol";
 }
 public String detailPrint(){
 	return null;
+}
+public boolean isPartial(){
+	return this.isPartial;
+}
+public String getReassembledPacket(){
+	return this.reassembledPacket;
 }
 }
