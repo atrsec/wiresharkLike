@@ -128,6 +128,7 @@ public String getAllTcpSession(){
 	Transport transport = this.transport;
 	String tcpStream = "";
 	while(transport != null){
+	//	if (!transport.getError())
 		tcpStream += Utils.byteToHex(transport.getPayload());
 		transport = transport.getNext();
 	}
@@ -207,16 +208,17 @@ public String tinyPrint(int lineLength, int lnum, int ltime, int lcon, int lprot
 		res += String.format("%-" + linfo + "." + linfo + "s|", info);
 	return res;
 }
-/*DEBUG
+//DEBUG
 public void printConversation(){
 	if (this.transport != null && this.transport.isBegin()){
 		Transport tmp = this.transport;
 		while(tmp != null){
-			System.out.println(tmp.numPacket);
+			System.out.println(tmp.num);
+			//System.out.println(tmp.getError());
 			tmp = tmp.getNext();
 		}
 		System.out.println("\n\n");
 	}
-}*/
+}
 
 }

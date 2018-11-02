@@ -135,7 +135,6 @@ public void findNextTcpPacket(Packet packet){
 	packet.getTransport().setAlreadyTreat(true);
 	for (Packet p : this.packets){
 		if (p.isTcpPacket() && packet.isNextTcpPacket(p) && !p.getTransport().getAlreadyTreat()){
-		//	System.out.println(p.getHeader().getNumber());
 			packet.getTransport().setNext(p.getTransport());
 			p.getTransport().setBegin(false);
 			//findNextTcpPacket(p);

@@ -2,9 +2,28 @@ import java.util.*;
 
 public class Dhcp implements AppProtocol{
 
-	//TODO LinkedHashMap
 	private Map<String, String> details;
 	private Map<String, String> options;
+	private final Map<String, String> DHCP_TYPE = Collections.unmodifiableMap(new TreeMap<String, String>() {{
+		put("01","DISCOVER");
+		put("02","OFFER");
+		put("03","REQUEST");
+		put("04","DECLINE");
+		put("05","ACK");
+		put("06","NAK");
+		put("07","RELEASE");
+		put("08","INFORM");
+		put("09","FORCERENEW");
+		put("0A","LEASEQUERY");
+		put("0B","LEASEUNASSIGNED");
+		put("0C","LEASEUNKNOWN");
+		put("0D","LEASEACTIVE");
+		put("0E","BULKLEASEQUERY");
+		put("0F","LEASEQUERYDONE");
+		put("10","ACTIVELEASEQUERY");
+		put("11","LEASEQUERYSTATUS");
+		put("12","TLS");
+    	}});
 
 Dhcp(byte[] datagram){
 	this.details = new LinkedHashMap<String, String>();
@@ -50,7 +69,8 @@ public String detailPrint(){
 }
 
 public String tinyPrint(){
-	return "DHCP";
+	return  "DHCP - " + DHCP_TYPE.get(this.options.get("53")) +
+		" - Transaction ID " + this.details.get("TransacId");
 }
 
 public String getProtocol(){

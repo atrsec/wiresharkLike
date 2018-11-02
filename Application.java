@@ -24,8 +24,15 @@ public static AppProtocol buildProtocol(byte[] datagram){
 		return new Http(datagram);
 	}else if (isDhcp(datagram)){
 		return new Dhcp(datagram);
-	}else
-		return null;
+	}else{
+		try{
+			AppProtocol app = new Dns(datagram);
+			return app;
+		}catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}
+	}
 }
 
 public static boolean isHttp(byte[] datagram){
@@ -68,5 +75,8 @@ public boolean isPartial(){
 }
 public String getReassembledPacket(){
 	return this.reassembledPacket;
+}
+public AppProtocol getAppProto(){
+	return this.appProtocol;
 }
 }

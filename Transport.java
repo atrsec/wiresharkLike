@@ -8,6 +8,8 @@ public class Transport implements Printable{
 	private Transport nextTransport;
 	private boolean begin;
 	private boolean alreadyTreat;
+	//TODO
+	private boolean error;
 	//TODO Better
 	private Application application;
 	public int num;
@@ -83,7 +85,14 @@ public byte[] getPayload(){
 	return this.payload;
 }
 
-//TODO Delete if not use
+public void setError(boolean b){
+	this.error = b;
+}
+
+public boolean getError(){
+	return this.error;
+}
+
 public boolean isBegin(){
 	return this.begin;
 }
