@@ -12,29 +12,28 @@ public class Dns implements AppProtocol{
 	Dns(byte[] datagram) throws Exception{
 		compression = new LinkedHashMap<>();
 		queries = new ArrayList<String[]>();
-		queries = new ArrayList<String[]>();
-		queries = new ArrayList<String[]>();
-		queries = new ArrayList<String[]>();
-		queries = new ArrayList<String[]>();
+		answers = new ArrayList<String[]>();
+		authAnswers = new ArrayList<String[]>();
+		additionnals = new ArrayList<String[]>();
 		parseHeader(datagram);
 		//System.out.println("Neww Packet :");
-		//System.out.println("Parse query :");
-		int offset = parseInfo(datagram, 12, Integer.parseInt(this.header.get("Nb_q")), false);
+		System.out.println("Parse query :");
+		int offset = parseInfo(datagram, 12, Integer.parseInt(this.header.get("Nb_q")), false, this.queries);
 		/*for(Map.Entry<Integer, String> field : compression.entrySet()) {
 			System.out.println(field.getKey() + " = " + field.getValue());
-		}
-		System.out.println("Parse answer :");*/
-		offset = parseInfo(datagram, offset, Integer.parseInt(this.header.get("Nb_a")), true);
+		}*/
+		System.out.println("Parse answer :");
+		offset = parseInfo(datagram, offset, Integer.parseInt(this.header.get("Nb_a")), true, this.answers);
 		/*for(Map.Entry<Integer, String> field : compression.entrySet()) {
 			System.out.println(field.getKey() + " = " + field.getValue());
-		}
-		System.out.println("Parse auth ans :");*/
-		offset = parseInfo(datagram, offset, Integer.parseInt(this.header.get("Nb_aa")), true);
+		}*/
+		System.out.println("Parse auth ans :");
+		offset = parseInfo(datagram, offset, Integer.parseInt(this.header.get("Nb_aa")), true, this.authAnswers);
 		/*for(Map.Entry<Integer, String> field : compression.entrySet()) {
 			System.out.println(field.getKey() + " = " + field.getValue());
-		}
-		System.out.println("Parse additionnal :");*/
-		offset = parseInfo(datagram, offset, Integer.parseInt(this.header.get("Nb_add")), true);
+		}*/
+		System.out.println("Parse additionnal :");
+		offset = parseInfo(datagram, offset, Integer.parseInt(this.header.get("Nb_add")), true, this.additionnals);
 		/*for(Map.Entry<Integer, String> field : compression.entrySet()) {
 			System.out.println(field.getKey() + " = " + field.getValue());
 		}*/
@@ -43,14 +42,14 @@ public class Dns implements AppProtocol{
 	public void parseHeader(byte[] datagram) throws Exception {
 		header = new LinkedHashMap<>();
 		header.put("TransacID", Utils.byteToHex(Arrays.copyOfRange(datagram, 0, 2)));
-		header.put("Flags", Utils.byteToHex(Arrays.copyOfRange(datagram, 2, 4)) + "");
+		header.put("Flags", Utils.byteToIntBE(Arrays.copyOfRange(datagram, 2, 4)) + "");
 		header.put("Nb_q", Utils.byteToIntBE(Arrays.copyOfRange(datagram, 4, 6)) + "");
 		header.put("Nb_a", Utils.byteToIntBE(Arrays.copyOfRange(datagram, 6, 8)) + "");
 		header.put("Nb_aa", Utils.byteToIntBE(Arrays.copyOfRange(datagram, 8, 10)) + "");
 		header.put("Nb_add", Utils.byteToIntBE(Arrays.copyOfRange(datagram, 10, 12)) + "");
 	}
 
-	public int parseInfo(byte[] datagram, int offset, int nb, boolean isAns) throws Exception {
+	public int parseInfo(byte[] datagram, int offset, int nb, boolean isAns, ArrayList<String[]> ans) throws Exception {
 		//int nbQ = Integer.parseInt(this.header.get("Nb_q"));
 		//int offset = 12;
 		for (int i = 0; i < nb; i++){
@@ -74,12 +73,12 @@ public class Dns implements AppProtocol{
 			else{
 				String ttl = Utils.byteToIntBE(Arrays.copyOfRange(datagram, offset, offset+ 4)) + "";
 				offset += 4;
-				String data = Utils.byteToIntBE(Arrays.copyOfRange(datagram, offset, offset+ 2)) + "";
+				String data = Utils.byteToIntBE(Arrays.copyOfRange(datagram, offset, offset + 2)) + "";
 				offset += 2;
 				//TODO replace 4 by data
-				String ipServ = Utils.byteToIP(Arrays.copyOfRange(datagram, offset, offset+ 4));
-				offset += 4;
-				this.queries.add(new String[]{name, type, Class, ttl, data, ipServ});
+				String ipServ = Utils.byteToHex(Arrays.copyOfRange(datagram, offset, offset + Integer.parseInt(data)));
+				offset += Integer.parseInt(data);
+				ans.add(new String[]{name, type, Class, ttl, data, ipServ});
 			}
 		}
 		return offset;
@@ -89,14 +88,19 @@ private String parseName(byte[] datagram, int offsetInit) throws Exception{
 	long info = Utils.byteToIntBE(Arrays.copyOfRange(datagram, offsetInit, offsetInit + 1));
 	if (info > 64){
 		String test = Utils.byteToHex(Arrays.copyOfRange(datagram, offsetInit, offsetInit + 2));
-		System.out.println(test);
 		info = Utils.byteToIntBE(Arrays.copyOfRange(datagram, offsetInit, offsetInit + 2));
 	//	System.out.println(info & 0x3F);
 	//	System.out.println("Sup 64");
-		return compression.get(info & 0x3F);
+		System.out.println("-------------------------");
+		for(Map.Entry<Integer, String> field : compression.entrySet()) 
+			System.out.println(field.getKey() + " = " + field.getValue());
+		System.out.println((info & 0x3FFF));
+		System.out.println(compression.get(info & 0x3FFF));
+		System.out.println(compression.get(12));
+		return compression.get((int)(info & 0x3FFF));
 	}
-	String test1 = Utils.byteToHex(Arrays.copyOfRange(datagram, offsetInit, offsetInit + 2));
-	System.out.println(test1);
+	//String test1 = Utils.byteToHex(Arrays.copyOfRange(datagram, offsetInit, offsetInit + 2));
+	//System.out.println(test1);
 	//System.out.println("Inf 64");
 	String name = "";
 	int offset = 1 + offsetInit;
@@ -110,6 +114,9 @@ private String parseName(byte[] datagram, int offsetInit) throws Exception{
 	return name;
 }
 
+	//TODO
+	//print of type and ipserv
+
 	public ArrayList<String> getRequests(){
 		return null;
 	}
@@ -117,7 +124,19 @@ private String parseName(byte[] datagram, int offsetInit) throws Exception{
 		return "DNS";
 	}
 	public String tinyPrint(){
-		return "DNS";
+		String res = "";
+		//Response
+		if ((Integer.parseInt(this.header.get("Flags")) >> 15) == 1){
+			res += "Response " + this.header.get("TransacID") + " ";
+			for (String[] a : this.answers)
+				res += a[1] + " " + a[0] + " " + a[5] + " ";
+		}
+		else{
+			res += "Question " + this.header.get("TransacID") + " ";
+			for (String[] q : this.queries)
+				res += q[1] + " " + q[0] + " ";
+		}
+		return res;
 	}
 	public String detailPrint(){
 		return "DNS";
