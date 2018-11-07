@@ -1,4 +1,4 @@
-# wiresharkLike
+# WiresharkLike
 
 Parse pcap file.
 
@@ -23,6 +23,6 @@ You can navigate in the pcap with these commands:
 - Display as wireshark, the reassembled packets are shown in the last IP/TCP packet of fragmentation/segmentation
 - Protocole handled : Ethernet, ARP, IPV4, UDP, TCP, ICMP, HTTP, DHCP, DNS
 
-## Limitation:
+## Limitations:
 - The program DOESN'T handle TCP errors
 - Performance are ugly, 4 minutes for 6500 packets
