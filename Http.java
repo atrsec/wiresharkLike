@@ -75,11 +75,7 @@ public class Http implements AppProtocol{
 	}
 
 	public String tinyPrint(){
-		String http = "";
-		for (String elt : this.requests){
-				http += elt.split("\n")[0] + "\n";
-		}
-		return http;
+		return null;
 	}
 	public String detailPrint(){
 		return null;

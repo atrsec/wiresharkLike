@@ -38,37 +38,6 @@ Packet(Header header, byte[] packet){
 			this.transport = new Transport(this.internet.getDetails().get("ProtoC4"), this.internet.getAssembledPayload(), this.header.getNumber());
 	}
 
-/*	public String printPacket(){
-		String result = "";// Utils.addTab(printLayer(this.networkAccess.getDetails()), 1);
-		if (this.internet != null) {
-			result += Utils.addTab(printLayer(this.internet.getDetails()), 2);
-			if (this.internet.getDetails().get("ProtoC3").equals("IPV4"))
-				result += Utils.addTab(Utils.byteToHex(this.internet.getPayload()), 2);
-		}
-		if (this.transport != null){
-			result += Utils.addTab(printLayer(this.transport.getDetails()), 3);
-			if (this.transport.getPayload() != null)
-				result += Utils.addTab(Utils.byteToHex(this.transport.getPayload()), 3);
-		}
-		if (this.application != null){
-			if (this.application.getHttp() != null){
-				result += this.application.getHttp().print();
-			}
-			if (this.application.getDhcp() != null){
-				result += this.application.getDhcp().print();
-			}
-		}
-		return result;
-	}*/
-
-	public String printLayer(Map<String, String> map){
-			String result = "";
-			for(Map.Entry<String, String> field : map.entrySet()) {
-				result += field.getKey() + " = " + field.getValue() + "\n";
-			}
-			return result;
-	}
-
 	public NetworkAccess getNetworkAccess() {
 		return networkAccess;
 	}
@@ -154,37 +123,29 @@ public void applicationLayerForTcp(Transport transport, AppProtocol appProto){
 	}
 }
 
-/*
-public boolean isIcmp(){
-	return this.networkAccess.getDetails().get("Type").equals("IPV4") && this.transport.getDetails().get("ProtoC4").equals("ICMP");
-}
-
-public boolean isTcpOrUdp(){
-	return 	this.networkAccess.getDetails().get("Type").equals("IPV4") && 
-		(this.transport.getDetails().get("ProtoC4").equals("TCP") || 
-		this.transport.getDetails().get("ProtoC4").equals("UDP"));
-}
-*/
-
-public String detailPrint(){
-	return null;
-}
-
 public Printable lastLayer(){
-	/*if(this.application != null)
-		return this.application;
-	else*/ 
-	if(this.transport != null){
-		/*if (this.transport.getApplication() != null)
-			return this.transport.getApplication();*/
+	if(this.transport != null)
 		return this.transport;
-	}
 	else if(this.internet != null)
 		return this.internet;
 	else if(this.networkAccess != null)
 		return this.networkAccess;
 	else
 		return null;
+}
+
+public ArrayList<String> getAllProtocol(){
+	ArrayList<String> protos = new ArrayList<>(); 
+	if(this.transport != null){
+		protos.add(this.transport.getDetails().get("ProtoC4"));
+		//System.out.println(this.transport.getProtocol());
+		protos.add(this.transport.getProtocol());
+	}
+	if(this.internet != null)
+		protos.add(this.internet.getProtocol());
+	if(this.networkAccess != null)
+		protos.add(this.networkAccess.getProtocol());
+	return protos;
 }
 
 public Connexion lastConnexionLayer(){
@@ -214,11 +175,22 @@ public void printConversation(){
 		Transport tmp = this.transport;
 		while(tmp != null){
 			System.out.println(tmp.num);
-			//System.out.println(tmp.getError());
 			tmp = tmp.getNext();
 		}
 		System.out.println("\n\n");
 	}
+}
+
+public String detailPrint(){
+	String res = "";
+	res += this.header.printHeader();
+	if (this.networkAccess != null)
+		res += Utils.addTab(Printer.printLayer(this.networkAccess.getDetails()), 1);
+	if (this.internet != null)
+		res += Utils.addTab(Printer.printLayer(this.internet.getDetails()), 2);
+	if (this.transport != null)
+		res += this.transport.detailPrint();
+	return res;
 }
 
 }

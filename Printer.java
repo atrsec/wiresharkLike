@@ -5,6 +5,12 @@ import java.lang.*;
 public class Printer{
 
 //TODO Options
+	private final int LINELENGTH = 125;
+	private final int LNUM = 5;
+	private final int LTIME = 10;
+	private final int LCON = 19;
+	private final int LPROTO = 5;
+	private final int LINFO = 60;
 
 public String printGlobalHeader(byte[][] globalHeader){
 	//TODO LE OR BE
@@ -18,49 +24,92 @@ public String printGlobalHeader(byte[][] globalHeader){
 	return result;
 }
 
-public String printPackets(ArrayList<Packet> packets){
-	int lineLength = 125;
-	int lnum = 5;
-	int ltime = 10;
-	int lcon = 19;
-	int lproto = 5;
-	int linfo = 60;
-	String result = firstLine(lineLength, lnum, ltime, lcon, lproto, linfo);
+public String printPackets(ArrayList<Packet> packets, String filter){
+	String result = firstLine();
+	boolean display = true;
 	for(Packet p : packets){
-		//if (p.getInternet() != null)
-		//	System.out.println(p.getInternet().getDetails().get("ProtoC4"));
-		result += p.tinyPrint(lineLength, lnum, ltime, lcon, lproto, linfo);
-		result += "\n";
-		for (int i = 0; i < lineLength; i++)
-			result += "-";
-		result += "\n";
+		if (filter != null){
+			if (!p.getAllProtocol().contains(filter.toUpperCase()))
+				display = false;
+		}
+		if (display == true){
+			result += p.tinyPrint(LINELENGTH, LNUM, LTIME, LCON, LPROTO, LINFO);
+			result += "\n";
+			for (int i = 0; i < LINELENGTH; i++)
+				result += "-";
+			result += "\n";
+		}
+		display = true;
 	}
 	return result;
 }
 
-public String firstLine(int lineLength, int lnum, int ltime, int lcon, int lproto, int linfo){
+public String firstLine(){
 	String result = "";
-	for (int i = 0; i < lineLength; i++)
+	for (int i = 0; i < LINELENGTH; i++)
 		result += "-";
 	result += "\n";
-	result += String.format("|%-" + lnum + "." + lnum + "s|", "N°");
-	result += String.format("%-" + ltime + "." + (ltime - 1) + "s|", "TimeStamp");
-	result += String.format("%-" + lcon + "s|", "Source");
-	result += String.format("%-" + lcon + "s|", "Destination");
-	result += String.format("%-" + lproto + "s|", "Proto");
-	result += String.format("%-" + linfo + "s|", "Information");
+	result += String.format("|%-" + LNUM + "." + LNUM + "s|", "N°");
+	result += String.format("%-" + LTIME + "." + (LTIME - 1) + "s|", "TimeStamp");
+	result += String.format("%-" + LCON + "s|", "Source");
+	result += String.format("%-" + LCON + "s|", "Destination");
+	result += String.format("%-" + LPROTO + "s|", "Proto");
+	result += String.format("%-" + LINFO + "s|", "Information");
 	result += "\n";
-	for (int i = 0; i < lineLength; i++)
+	for (int i = 0; i < LINELENGTH; i++)
 		result += "-";
 	result += "\n";
 	return result;
 	
 }
 
-public String printByProto(ArrayList<Packet> packets, String filter){
+public String printPacketDetail(ArrayList<Packet> packets, int number){
 	String result = "";
-	for(Packet p : packets){
-		//result += p.printSrcDst() + "\n\n";
+	if (number >= packets.size() || number < 0)
+		return "This packet number doesn't exist.";
+	for (int i = 0; i < LINELENGTH; i++)
+		result += "-";
+	result += "\n";
+	result += packets.get(number - 0).detailPrint();
+	result += "\n";
+	for (int i = 0; i < LINELENGTH; i++)
+		result += "-";
+	result += "\n";
+	return result;
+}
+
+public String printConversation(ArrayList<Packet> packets, int begin){
+	if (begin >= packets.size() || begin < 0)
+		return "This packet number doesn't exist.";
+	ArrayList<Integer> numPackets = getConvNumber(packets, begin);
+	String result = firstLine();
+	for(int n : numPackets){
+		result += packets.get(n).tinyPrint(LINELENGTH, LNUM, LTIME, LCON, LPROTO, LINFO);
+		result += "\n";
+		for (int i = 0; i < LINELENGTH; i++)
+			result += "-";
+		result += "\n";
+	}
+	return result;
+}
+
+public ArrayList<Integer> getConvNumber(ArrayList<Packet> packets, int begin){
+	ArrayList<Integer> numPackets = new ArrayList<>();
+	Packet p = packets.get(begin);
+	if (p.getTransport() == null)
+		return numPackets; 
+	Transport t = p.getTransport();
+	while (t != null){
+		numPackets.add(t.num - 1);
+		t = t.getNext();
+	}
+	return numPackets;
+}
+
+public static String printLayer(Map<String, String> map){
+	String result = "";
+	for(Map.Entry<String, String> field : map.entrySet()) {
+		result += field.getKey() + " = " + field.getValue() + "\n";
 	}
 	return result;
 }

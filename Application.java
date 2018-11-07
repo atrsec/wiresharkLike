@@ -29,7 +29,7 @@ public static AppProtocol buildProtocol(byte[] datagram){
 			AppProtocol app = new Dns(datagram);
 			return app;
 		}catch(Exception e){
-			e.printStackTrace();
+			//e.printStackTrace();
 			return null;
 		}
 	}
@@ -63,12 +63,12 @@ public String getProtocol(){
 public String tinyPrint(){
 	if (isPartial)
 		return this.reassembledPacket.split("\r\n")[0];//.replace("\n", " ");
-	if (this.appProtocol != null)
-		return this.appProtocol.tinyPrint();
-	return "Unknown protocol";
+	return this.appProtocol.tinyPrint();
 }
 public String detailPrint(){
-	return null;
+	if (isPartial)
+		return this.reassembledPacket.split("\r\n")[0] + "\n" + this.reassembledPacket.split("\r\n")[1] + "\n...";
+	return this.appProtocol.detailPrint();
 }
 public boolean isPartial(){
 	return this.isPartial;

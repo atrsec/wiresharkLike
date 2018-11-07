@@ -154,14 +154,15 @@ public boolean isTcp(){
 }
 
 public String tinyPrint(){
-	if (this.application == null || (this.application.isPartial() && this.application.getReassembledPacket() == null)){
+	if (this.application == null || (this.application.isPartial() && this.application.getReassembledPacket() == null) || this.application.getAppProto() == null){
 		if (this.details.get("ProtoC4").equals("ICMP")){
 			return ICMP_TYPE.get(this.details.get("Type"));
 		}
 		else/*if (!this.details.get("ProtoC4").equals("ICMP"))*/{
 			String res = this.details.get("Port_source") + " => " + 
-				this.details.get("Port_dest") + " [ ";
+				this.details.get("Port_dest");
 			if (!this.details.get("ProtoC4").equals("UDP")){
+				res += " [ ";
 				if (this.details.get("FLAG_SYN").equals("1"))
 					res += "SYN ";
 				if (this.details.get("FLAG_FIN").equals("1"))
@@ -186,8 +187,13 @@ public String tinyPrint(){
 	return application.tinyPrint();
 }
 public String detailPrint(){
-	return null;
+	String res = "";
+	res += Utils.addTab(Printer.printLayer(this.details), 3);
+	if (!(this.application == null || (this.application.isPartial() && this.application.getReassembledPacket() == null) || this.application.getAppProto() == null))
+		res += Utils.addTab(this.application.detailPrint(), 4);
+	return res;
 }
+
 public String getProtocol(){
 	if (this.application == null || (this.application.isPartial() && this.application.getReassembledPacket() == null))
 		return this.details.get("ProtoC4");
