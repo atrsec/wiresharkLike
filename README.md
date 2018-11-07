@@ -3,10 +3,10 @@
 Parse pcap file.
 
 ## Install:
-  > use 'make' or 'make all' in the maze directory.
+  > use 'make' or 'make all' in the wiresharLike.
 
 ## Usage:
-- java Wiresharklike PCAP_FILE
+- java WiresharkLike PCAP_FILE
 > Launch interactive mode and print all the pcap file.
 You can navigate in the pcap with these commands:  
   
@@ -14,7 +14,7 @@ You can navigate in the pcap with these commands:
 - c NUMBER_PACKET : Print the transport protocol conversation since the packet number NUMBER_PACKET  
 - f PROTOCOL : Print only the packet of protocol (and TCP associated packet)  
 - q | quit : Quit the program.
-- java Wiresharklike PCAP_FILE -o OUTPUT_FILE
+- java WiresharkLike PCAP_FILE -o OUTPUT_FILE
 > Write PCAP_FILE parsed output in OUTPUT_FILE
 
 ## Features:
