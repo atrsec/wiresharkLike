@@ -16,7 +16,7 @@ public static void main (String[] args){
 		if (args.length == 3){
 			try {
 				PrintWriter logFile = new PrintWriter( new BufferedWriter (new FileWriter(args[2])));
-				logFile.write(printer.printPackets(parser.getPackets(), null));
+				logFile.write(printer.printGlobalHeader(parser.getGlobalHeader()) + "\n" + printer.printPackets(parser.getPackets(), null));
 				logFile.close();
 			}catch(Exception e){
 				System.out.println("Impossible to open " + args[2] + " !");
@@ -24,7 +24,7 @@ public static void main (String[] args){
 			}
 			return;
 		}
-		System.out.println(printer.printPackets(parser.getPackets(), null));
+		System.out.println(printer.printGlobalHeader(parser.getGlobalHeader()) + "\n" + printer.printPackets(parser.getPackets(), null));
 		boolean loop = true;
 		Scanner sc = new Scanner(System.in);
 		while(loop){

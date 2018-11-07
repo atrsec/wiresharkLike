@@ -32,7 +32,10 @@ public int parseGlobalHeader(){
 	//Magic number
 	globalHeaderParsed[0] = Arrays.copyOfRange(globalHeader, 0, 4);
 	if (!checkMagicNumber(globalHeaderParsed[0]))
-		return 1;
+	{
+		System.err.println("This is not a pcap file");
+		System.exit(1);
+	}
 	//Major version number	
 	globalHeaderParsed[1] = Arrays.copyOfRange(globalHeader, 4, 6);
 	//Minor version number	
@@ -47,7 +50,7 @@ public int parseGlobalHeader(){
 	return 0;
 } 
 public void parse(){
-	parseDatagrams();
+	int res = parseDatagrams();
 	parsePackets();
 	parseApplication();
 	START_CAPTURE = this.packets.get(0).getHeader().getTimestamp();
