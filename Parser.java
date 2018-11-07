@@ -19,6 +19,7 @@ Parser(String filepath){
 	}
 	catch(IOException e){
 		System.out.println("Le fichier n'existe pas.");
+		System.exit(1);
 	}
 	this.packets = new ArrayList<>();
 }
