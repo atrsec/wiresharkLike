@@ -240,12 +240,13 @@ private String parseName(byte[] datagram, int offsetInit) throws Exception{
 	public String tinyPrint(){
 		String res = "";
 		//Response
-		res += "Response " + this.header.get("TransacID") + " ";
 		if ((Integer.parseInt(this.header.get("Flags")) >> 15) == 1){
+			res += "Response " + this.header.get("TransacID") + " ";
 			for (String[] a : this.answers)
 				res += DNS_TYPES.get(a[1]) + " " + a[0] + " " + a[5] + " ";
 		}
 		else{
+			res += "Query " + this.header.get("TransacID") + " ";
 			for (String[] q : this.queries)
 				res += DNS_TYPES.get(q[1]) + " " + q[0] + " ";
 		}
