@@ -6,14 +6,14 @@ Parse pcap file.
   > use 'make' or 'make all' in the wiresharLike.
 
 ## Usage:
-- java WiresharkLike PCAP_FILE
+- `java WiresharkLike PCAP_FILE`
 > Launch interactive mode and print all the pcap file.
 You can navigate in the pcap with these commands:  
 `d NUMBER_PACKET` : Print the detail vue of packet number NUMBER_PACKET  
 `c NUMBER_PACKET` : Print the transport protocol conversation since the packet number NUMBER_PACKET  
 `f PROTOCOL` : Print only the packet of protocol (and TCP associated packet)  
 `q | quit` : Quit the program.  
-- java WiresharkLike PCAP_FILE -o OUTPUT_FILE
+- `java WiresharkLike PCAP_FILE -o OUTPUT_FILE`
 > Write PCAP_FILE parsed output in OUTPUT_FILE
 
 ## Features:
